@@ -11,20 +11,12 @@ struct team{
     int ties;
     int difficulty;
     team(string name,int win, int loss, int tie, int diff){
-        cout << "inputted diff: " << diff << endl << endl;
         teamName = name;
         wins = win;
         losses = loss;
         ties= tie;
         difficulty = diff;
     }
-    // team(team& other){
-    //     teamName = other.teamName;
-    //     wins = other.wins;
-    //     losses = other.losses;
-    //     ties = other.ties;
-    //     difficulty = other.difficulty;
-    // }
 };
 
 // sort poll
@@ -34,7 +26,7 @@ void getRankings(vector<team>* teams, vector<team>* rankings){
         team curr = teams->at(i);
         rankings->at(i) = team(curr.teamName,curr.wins,curr.losses,curr.ties,curr.difficulty);
     }
-    
+
     // sort the teams
     for(int i = 0; i < 31; i++){
         team curr = rankings->at(i);
@@ -79,7 +71,7 @@ void getInput(vector<team>* teams, int weekNum){
     cout <<"---------------------------------------------" << endl << endl;
     for(int i = 0; i < 32; i++){
         string result = "";
-        cout << "Enter 1 if " << teams->at(i).teamName << " won, -1 if they loss, and 0 if they tied: ";
+        cout << "Enter 1 if " << teams->at(i).teamName << " won,2 for a bye week, -1 if they loss, and 0 if they tied: ";
         cin >> result;
     
         int num = stoi(result); 
@@ -110,12 +102,36 @@ void populateNums(vector<team>* teams, int* week){
         }
         int split = line.find(",");
         int win = stoi(line.substr(0,split));
-        int loss = stoi(line.substr(split+1, line.length()-split-1));
+        line.erase(0, split+1);
+        split = line.find(",");
+        int loss = stoi(line.substr(0,split));
+        int tie = stoi(line.substr(split+1, line.length()-split-1));
+        
         teams->at(teamNum).wins = win;
         teams->at(teamNum).losses = loss;
+        teams->at(teamNum).ties = tie;
         teamNum++;
     }
     teamInfo.close();
+}
+
+void outputRankings(vector<team> ranking, int weekNum){
+    cout << endl <<  "      AP Poll For Week " << weekNum << endl;
+    cout << "----------------------------------" << endl << endl;
+    for(int i = 0; i < 25; i++){
+        team curr = ranking.at(i);
+        int diff = 20 - curr.teamName.length();
+        string spaces = "";
+        for(int i = 0; i < diff; i++){
+            spaces += " ";
+        }
+        if(i < 9)
+            cout <<" " <<  i+1 << ". " << curr.teamName << spaces << curr.wins << "-" << curr.losses << "-" << curr.ties << "    " << curr.difficulty << endl;
+        else
+            cout << i+1 << ". " << curr.teamName << spaces << curr.wins << "-" << curr.losses << "-" << curr.ties << "    " << curr.difficulty << endl;
+    }
+    cout << endl <<  "Also recieved votes: " << ranking.at(25).teamName << ", " << ranking.at(26).teamName << ", " << ranking.at(27).teamName << ", " <<
+    ranking.at(28).teamName << ", " << ranking.at(29).teamName << ", " << ranking.at(30).teamName << ", " << ranking.at(31).teamName << endl << endl;
 }
 
 int main(){
@@ -131,25 +147,25 @@ int main(){
         ranking.push_back(team("",0,0,0,0));
     }
     int weekNum = 0;
-
-    getInput(&teams, weekNum);
-    // populateNums(&teams,&weekNum);
-    getRankings(&teams, &ranking);
-
-    for(int i = 0; i < 25; i++){
-        team curr = ranking.at(i);
-        int diff = 20 - curr.teamName.length();
-        string spaces = "";
-        for(int i = 0; i < diff; i++){
-            spaces += " ";
+    populateNums(&teams,&weekNum);
+    int input = 0;
+    string in = "";
+    cout << "options:\n0 - Enter info for a new week\n1 - View the current rankings\n2 - Exit\n";
+    cin >> in;
+    input = stoi(in);
+    while(input != 2){
+        if(input == 0){
+            getInput(&teams, weekNum);
+            updateWins(teams, weekNum);
+        }else if(input == 1){
+            populateNums(&teams,&weekNum);
+            getRankings(&teams, &ranking);
+            outputRankings(ranking, weekNum);
         }
-        if(i < 9)
-            cout <<" " <<  i+1 << ". " << curr.teamName << spaces << curr.wins << "-" << curr.losses << "-" << curr.ties << "    " << curr.difficulty << endl;
-        else
-            cout << i+1 << ". " << curr.teamName << spaces << curr.wins << "-" << curr.losses << "-" << curr.ties << "    " << curr.difficulty << endl;
+        cout << "options:\n0 - Enter info for a new week\n1 - View the current rankings\n2 - Exit\n";
+        cin >> in;
+        input = stoi(in);
     }
-    cout << "Also recieved votes: " << ranking.at(26).teamName << ", " << ranking.at(27).teamName << ", " << ranking.at(28).teamName << ", " <<
-    ranking.at(29).teamName << ", " << ranking.at(30).teamName << endl;
-    //while(weekNum < 20){};
-
+    cout << "Exiting!" << endl;
+    
 }
