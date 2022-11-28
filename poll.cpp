@@ -60,17 +60,18 @@ void updateWins(vector<team> teams, int weekNum){
     ofstream info("teams.csv");
     info << weekNum << "\n";
     for(int i = 0; i < 32; i++){
-        info << teams[i].wins << "," << teams[i].losses << "," << teams[i].losses << "\n";
+        info << teams[i].wins << "," << teams[i].losses << "," << teams[i].ties << "\n";
     }
 
 }
 
 // get input to update teams
-void getInput(vector<team>* teams, int weekNum){
+void getInput(vector<team>* teams, int* weekNum){
     cout << "TIME TO ENTER THE RESULTS OF WEEK " << weekNum << endl;
     cout <<"---------------------------------------------" << endl << endl;
     for(int i = 0; i < 32; i++){
         string result = "";
+        cout << teams->at(i).teamName << " was " << teams->at(i).wins << " - " << teams->at(i).losses << " - " << teams->at(i).ties << " last week" << endl;
         cout << "Enter 1 if " << teams->at(i).teamName << " won,2 for a bye week, -1 if they loss, and 0 if they tied: ";
         cin >> result;
     
@@ -82,11 +83,14 @@ void getInput(vector<team>* teams, int weekNum){
         }
         else if(num == -1){
             teams->at(i).losses++;
+        }else if(num == 2){
+            cout << "";
         }else{
             cout << "Incorrect Number" << endl;
         }
         cout << teams->at(i).teamName << " is now " << teams->at(i).wins << " - " << teams->at(i).losses << endl;
     }
+    weekNum++;
 }
 
 void populateNums(vector<team>* teams, int* week){
@@ -155,7 +159,7 @@ int main(){
     input = stoi(in);
     while(input != 2){
         if(input == 0){
-            getInput(&teams, weekNum);
+            getInput(&teams, &weekNum);
             updateWins(teams, weekNum);
         }else if(input == 1){
             populateNums(&teams,&weekNum);
