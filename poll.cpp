@@ -3,7 +3,7 @@
 #include <fstream>
 #include <vector>
 
-using std::string, std::cout, std::cin, std::endl, std::vector, std::ifstream;
+using std::string, std::cout, std::cin, std::endl, std::vector, std::ifstream, std::ofstream;
 struct team{
     string teamName;
     int wins;
@@ -11,23 +11,68 @@ struct team{
     int ties;
     int difficulty;
     team(string name,int win, int loss, int tie, int diff){
+        cout << "inputted diff: " << diff << endl << endl;
         teamName = name;
         wins = win;
         losses = loss;
         ties= tie;
-        diff = diff;
+        difficulty = diff;
     }
+    // team(team& other){
+    //     teamName = other.teamName;
+    //     wins = other.wins;
+    //     losses = other.losses;
+    //     ties = other.ties;
+    //     difficulty = other.difficulty;
+    // }
 };
 
 // sort poll
-void getRankings(vector<string> teamNames, int wins[32], int losses[32], int difficulty[32], vector<string> &rankings){
+void getRankings(vector<team>* teams, vector<team>* rankings){
+    // copy teams into rankings
+    for(int i = 0; i < 32; i++){
+        team curr = teams->at(i);
+        rankings->at(i) = team(curr.teamName,curr.wins,curr.losses,curr.ties,curr.difficulty);
+    }
+    
+    // sort the teams
+    for(int i = 0; i < 31; i++){
+        team curr = rankings->at(i);
+        for(int j = i+1; j < 32; j++){
+            // tied for wins
+            if(curr.wins == rankings->at(j).wins){
+                if(curr.losses > rankings->at(j).losses){
+                    rankings->at(i) = rankings->at(j);
+                    rankings->at(j) = curr;
+                    curr = rankings->at(i);
+                }else if(curr.losses == rankings->at(j).losses){
+                    if(curr.difficulty < rankings->at(j).difficulty){
+                        rankings->at(i) = rankings->at(j);
+                        rankings->at(j) = curr;
+                        curr = rankings->at(i);
+                    }
+                }
+                // more wins
+            }else if(curr.wins < rankings->at(j).wins){
+                rankings->at(i) = rankings->at(j);
+                rankings->at(j) = curr;
+                curr = rankings->at(i);
+            }
+        }
+    }
 
 }
 
 // updateWins/Losses
-void updateWins(vector<int> wins, vector<int> losses, int weekNum){
+void updateWins(vector<team> teams, int weekNum){
+    ofstream info("teams.csv");
+    info << weekNum << "\n";
+    for(int i = 0; i < 32; i++){
+        info << teams[i].wins << "," << teams[i].losses << "," << teams[i].losses << "\n";
+    }
 
 }
+
 // get input to update teams
 void getInput(vector<team>* teams, int weekNum){
     cout << "TIME TO ENTER THE RESULTS OF WEEK " << weekNum << endl;
@@ -36,18 +81,19 @@ void getInput(vector<team>* teams, int weekNum){
         string result = "";
         cout << "Enter 1 if " << teams->at(i).teamName << " won, -1 if they loss, and 0 if they tied: ";
         cin >> result;
-        cout << "\n You inputted " << result << endl << endl << endl;
+    
         int num = stoi(result); 
         if(num == 1){
-            
+            teams->at(i).wins++;
         }else if(num == 0){
-            cout << teams->at(i).teamName << " TIED THIS WEEK" << endl << endl;
+            teams->at(i).ties++;
         }
         else if(num == -1){
-            cout << teams->at(i).teamName << " LOSS THIS WEEK" << endl << endl;
+            teams->at(i).losses++;
         }else{
             cout << "Incorrect Number" << endl;
         }
+        cout << teams->at(i).teamName << " is now " << teams->at(i).wins << " - " << teams->at(i).losses << endl;
     }
 }
 
@@ -79,15 +125,31 @@ int main(){
     vector<int> difficulty = {10,7,8,9,10,7,9,6,5,6,7,8,9,7,6,8,5,7,7,9,6,8,7,5,10,5,9,4,6,7,3,3};
 
     vector<team> teams;
+    vector<team> ranking;
     for(int i = 0; i < 32; i++){
         teams.push_back(team(teamNames[i],0,0,0,difficulty[i]));
+        ranking.push_back(team("",0,0,0,0));
     }
-
-    vector<string> ranking;
     int weekNum = 0;
 
     getInput(&teams, weekNum);
-    populateNums(&teams,&weekNum);
+    // populateNums(&teams,&weekNum);
+    getRankings(&teams, &ranking);
+
+    for(int i = 0; i < 25; i++){
+        team curr = ranking.at(i);
+        int diff = 20 - curr.teamName.length();
+        string spaces = "";
+        for(int i = 0; i < diff; i++){
+            spaces += " ";
+        }
+        if(i < 9)
+            cout <<" " <<  i+1 << ". " << curr.teamName << spaces << curr.wins << "-" << curr.losses << "-" << curr.ties << "    " << curr.difficulty << endl;
+        else
+            cout << i+1 << ". " << curr.teamName << spaces << curr.wins << "-" << curr.losses << "-" << curr.ties << "    " << curr.difficulty << endl;
+    }
+    cout << "Also recieved votes: " << ranking.at(26).teamName << ", " << ranking.at(27).teamName << ", " << ranking.at(28).teamName << ", " <<
+    ranking.at(29).teamName << ", " << ranking.at(30).teamName << endl;
     //while(weekNum < 20){};
 
 }
