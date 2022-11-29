@@ -195,12 +195,12 @@ int main(){
             weekNum++;
             getInput(&teams, weekNum);
             updateWins(teams, weekNum);
-        }else if(input == 1){
-            populateNums(&teams,&weekNum);
             getRankings(&teams, &ranking, weekNum);
-            outputRankings(ranking, weekNum);
             updatePrevRank(&ranking, &teams);
             updateWins(teams, weekNum);
+        }else if(input == 1){
+            getRankings(&teams, &ranking, weekNum);
+            outputRankings(ranking, weekNum);
         }else if(input == 5){
             weekNum = 0;
             updatePrevRank(&ranking, &teams);
