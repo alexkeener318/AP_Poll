@@ -4,6 +4,7 @@
 #include <vector>
 
 using std::string, std::cout, std::cin, std::endl, std::vector, std::ifstream, std::ofstream;
+
 struct team{
     string teamName;
     int wins;
@@ -33,7 +34,7 @@ void getRankings(vector<team>* teams, vector<team>* rankings, int weekNum){
     for(int i = 0; i < 31; i++){
         team curr = rankings->at(i);
         for(int j = i+1; j < 32; j++){
-            // tied for wins
+            // Uses tie breakers if wins are the same
             if(curr.wins == rankings->at(j).wins){
                 if(curr.losses > rankings->at(j).losses){
                     rankings->at(i) = rankings->at(j);
@@ -46,7 +47,7 @@ void getRankings(vector<team>* teams, vector<team>* rankings, int weekNum){
                         curr = rankings->at(i);
                     }
                 }
-                // more wins
+            // Lowers it's ranking if it has more less wins than the comparison team
             }else if(curr.wins < rankings->at(j).wins){
                 rankings->at(i) = rankings->at(j);
                 rankings->at(j) = curr;
@@ -57,7 +58,7 @@ void getRankings(vector<team>* teams, vector<team>* rankings, int weekNum){
 
 }
 
-// updateWins/Losses
+// Writes to the csv file the new updated stats for each team
 void updateWins(vector<team> teams, int weekNum){
     ofstream info("teams.csv");
     info << weekNum << "\n";
@@ -67,7 +68,7 @@ void updateWins(vector<team> teams, int weekNum){
 
 }
 
-// get input to update teams
+// Gets the results of the past week for each team and updates each team object
 void getInput(vector<team>* teams, int weekNum){
     cout << "TIME TO ENTER THE RESULTS OF WEEK " << weekNum << endl;
     cout <<"---------------------------------------------" << endl << endl;
@@ -94,6 +95,7 @@ void getInput(vector<team>* teams, int weekNum){
     }
 }
 
+// Pulls the data from the csv to implement into each team struct
 void populateNums(vector<team>* teams, int* week){
     ifstream teamInfo("teams.csv");
     string line = "";
@@ -152,6 +154,7 @@ void outputRankings(vector<team> ranking, int weekNum){
     ranking.at(28).teamName << ", " << ranking.at(29).teamName << ", " << ranking.at(30).teamName << ", " << ranking.at(31).teamName << endl << endl;
 }
 
+// Updates each team's previous rank for use in the AP Poll output
 void updatePrevRank(vector<team>* ranking, vector<team>* teams){
     for(int i = 0; i < 32; i++){
         string name = ranking->at(i).teamName;
@@ -163,6 +166,7 @@ void updatePrevRank(vector<team>* ranking, vector<team>* teams){
     }
 }
 
+// Sets all the stats besides previous rank to 0 for each team
 void resetSeason(vector<team>* teams){
     for(int i = 0; i < 32; i++){
         teams->at(i).wins = 0;
@@ -176,20 +180,23 @@ int main(){
                                 "Ole Miss","Arkansas","USC","Utah","UCLA","Oregon","Baylor","Texas","Oklahoma","TCU","Texas Tech","Kansas State",
                                 "Kansas","Oklahoma State","Ohio State","Illinois","Michigan","Iowa","Florida State","Clemson","Wake Forest","Louisville"};
     vector<int> difficulty = {10,7,8,9,10,7,9,6,5,6,7,8,9,7,6,8,5,7,7,9,6,8,7,5,10,5,9,4,6,7,3,3};
-
     vector<team> teams;
     vector<team> ranking;
+    // populates vectors with dummy data
     for(int i = 0; i < 32; i++){
         teams.push_back(team(teamNames[i],0,0,0,difficulty[i],0));
         ranking.push_back(team("",0,0,0,0,0));
     }
     int weekNum = 0;
     populateNums(&teams,&weekNum);
+
+    // sets up values for user input
     int input = 0;
     string in = "";
     cout << "options:\n0 - Enter info for a new week\n1 - View the current rankings\n5 - Reset the season\n2 - Exit\n";
     cin >> in;
     input = stoi(in);
+
     while(input != 2){
         if(input == 0){
             weekNum++;
