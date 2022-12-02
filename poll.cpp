@@ -47,7 +47,7 @@ void getRankings(vector<team>* teams, vector<team>* rankings, int weekNum){
                         curr = rankings->at(i);
                     }
                 }
-            // Lowers it's ranking if it has more less wins than the comparison team
+            // Lowers it's ranking if it has less wins than the comparison team
             }else if(curr.wins < rankings->at(j).wins){
                 rankings->at(i) = rankings->at(j);
                 rankings->at(j) = curr;
@@ -91,7 +91,7 @@ void getInput(vector<team>* teams, int weekNum){
         }else{
             cout << "Incorrect Number" << endl;
         }
-        cout << teams->at(i).teamName << " is now " << teams->at(i).wins << " - " << teams->at(i).losses << endl << endl;
+        cout << teams->at(i).teamName << " is now " << teams->at(i).wins << "-" << teams->at(i).losses << "-" << teams->at(i).ties << endl << endl;
     }
 }
 
@@ -202,7 +202,6 @@ int main(){
             weekNum++;
             getInput(&teams, weekNum);
             updateWins(teams, weekNum);
-            getRankings(&teams, &ranking, weekNum);
             updatePrevRank(&ranking, &teams);
             updateWins(teams, weekNum);
         }else if(input == 1){
